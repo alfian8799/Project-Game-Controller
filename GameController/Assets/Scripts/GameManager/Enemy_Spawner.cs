@@ -6,6 +6,10 @@ public class Enemy_Spawner : MonoBehaviour
     public GameObject enemyPrefab;        // prefab musuh
     public int maxEnemies = 10;           // maksimal jumlah musuh di scene
 
+    [Header("HP Bar Settings")]
+    public GameObject hpBarPrefab;        // prefab HP bar
+    public Canvas uiCanvas;               // canvas tempat HP bar muncul
+
     [Header("Spawn Settings")]
     public float spawnInterval = 3f;      // jeda antar spawn
     public Vector2 spawnMin;              // batas kiri-bawah
@@ -37,9 +41,21 @@ public class Enemy_Spawner : MonoBehaviour
         float y = Random.Range(spawnMin.y, spawnMax.y);
         Vector2 spawnPos = new Vector2(x, y);
 
+        // ✅ Spawn musuh
         GameObject newEnemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
-
         currentEnemyCount++;
+
+        // ✅ Spawn HP bar otomatis
+        if (hpBarPrefab != null && uiCanvas != null)
+        {
+            GameObject newHPBar = Instantiate(hpBarPrefab, uiCanvas.transform);
+            HPBar_Follow_Enemy hpScript = newHPBar.GetComponent<HPBar_Follow_Enemy>();
+            hpScript.enemy = newEnemy.transform;
+        }
+        else
+        {
+            Debug.LogWarning("[Spawner] HP bar prefab atau Canvas belum di-assign!");
+        }
 
         // Kurangi count saat enemy mati
         Character_Base enemyBase = newEnemy.GetComponent<Character_Base>();
