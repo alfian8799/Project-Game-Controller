@@ -40,13 +40,17 @@ public class Character_Base : MonoBehaviour
         // Jika ini Enemy → Tambahkan skor
         if (this is Enemy && scoreManager != null)
         {
-            scoreManager.AddScore(1);
+            scoreManager.AddScore(50);
         }
 
-        // Jika ini Player → Reset skor
-        if (this is Player && scoreManager != null)
+        // Jika ini Player → Tampilkan UI Game Over
+        if (this is Player)
         {
-            scoreManager.ResetScore();
+            GameOverManager gameOverManager = FindFirstObjectByType<GameOverManager>();
+            if (gameOverManager != null)
+            {
+                gameOverManager.ShowGameOverUI();
+            }
         }
 
         Destroy(gameObject);

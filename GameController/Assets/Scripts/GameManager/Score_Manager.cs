@@ -1,28 +1,38 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
+    // ✨ Jadikan ScoreManager singleton
+    public static ScoreManager Instance { get; private set; }
+
     [Header("Score Settings")]
     public int score = 0;
-    public Text scoreText; // drag UI Text dari Canvas ke sini
+    public TextMeshProUGUI scoreText;
+
+    void Awake()
+    {
+        // ✨ Pastikan hanya ada satu instance ScoreManager
+        if (Instance == null)
+        {
+            Instance = this;
+            // Opsi: DontDestroyOnLoad(gameObject); jika Anda ingin skor bertahan antar scene
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
         UpdateScoreUI();
     }
 
-    // ✅ Tambahkan skor (+1 misalnya saat musuh mati)
+    // ✅ Tambahkan skor (+50 saat musuh mati)
     public void AddScore(int amount)
     {
         score += amount;
-        UpdateScoreUI();
-    }
-
-    // ✅ Reset skor (misalnya saat player mati)
-    public void ResetScore()
-    {
-        score = 0;
         UpdateScoreUI();
     }
 
