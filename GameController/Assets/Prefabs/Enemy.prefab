@@ -228,13 +228,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groundCheck: {fileID: 7850592978077155825}
   wallCheck: {fileID: 7934926865502333258}
-  checkRadius: 0.2
+  checkRadius: 0.3
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
   idleTime: 1.5
   walkTime: 2
-  chaseRadius: 4
+  chaseRadius: 6.5
   chaseMultiplier: 1.5
 --- !u!114 &2309043162713213948
 MonoBehaviour:

@@ -17,7 +17,7 @@ public class Move_Patrol : MonoBehaviour
     public float chaseRadius = 5f;     // jarak deteksi
     public float chaseMultiplier = 2f; // berapa kali lipat SPD saat mengejar
 
-    private Transform target;  // otomatis isi dari tag Player
+    private Transform target;
     private Rigidbody2D rb;
     private Enemy enemy;
     private bool movingRight = true;
@@ -28,7 +28,7 @@ public class Move_Patrol : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         enemy = GetComponent<Enemy>();
-        timer = walkTime; // mulai dengan berjalan
+        timer = walkTime;
 
         // cari player otomatis
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -58,7 +58,6 @@ public class Move_Patrol : MonoBehaviour
             timer -= Time.deltaTime;
             if (timer <= 0)
             {
-                // Setelah idle, mulai jalan lagi
                 isIdle = false;
                 timer = walkTime;
 
@@ -75,7 +74,6 @@ public class Move_Patrol : MonoBehaviour
             timer -= Time.deltaTime;
             if (timer <= 0)
             {
-                // Setelah jalan, masuk idle
                 isIdle = true;
                 timer = idleTime;
             }
@@ -86,11 +84,10 @@ public class Move_Patrol : MonoBehaviour
     {
         rb.linearVelocity = new Vector2((movingRight ? 1 : -1) * enemy.SPD, rb.linearVelocity.y);
 
-        // Tetap cek ujung/dinding
-        bool noGround = !Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+        // ❗️Hanya cek wall — tidak cek ground
         bool hitWall = Physics2D.OverlapCircle(wallCheck.position, checkRadius, groundLayer);
 
-        if (noGround || hitWall)
+        if (hitWall)
         {
             Flip();
         }
@@ -103,7 +100,6 @@ public class Move_Patrol : MonoBehaviour
 
         rb.linearVelocity = new Vector2(direction * chaseSpeed, rb.linearVelocity.y);
 
-        // ubah arah sprite sesuai arah player
         movingRight = direction > 0;
         SetFacing();
     }
@@ -123,8 +119,6 @@ public class Move_Patrol : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        if (groundCheck != null)
-            Gizmos.DrawWireSphere(groundCheck.position, checkRadius);
         if (wallCheck != null)
             Gizmos.DrawWireSphere(wallCheck.position, checkRadius);
 

@@ -1,28 +1,26 @@
 using UnityEngine;
-using UnityEngine.UI; // Menambahkan namespace untuk menggunakan elemen UI
+using UnityEngine.UI;
 
 public class Character_Base : MonoBehaviour
 {
     public int HP = 100;
     public float SPD = 2f;
     public int ATK = 10;
-    public Slider healthBarSlider; // Variabel untuk menampung referensi ke UI Slider
+    public Slider healthBarSlider;
 
-    // Metode Start akan dijalankan saat objek dibuat
     void Start()
     {
-        // Pastikan Slider sudah diatur di Inspector. Jika tidak, akan muncul pesan peringatan
         if (healthBarSlider != null)
         {
-            healthBarSlider.maxValue = HP; // Atur nilai maksimal slider sama dengan HP awal
-            healthBarSlider.value = HP;    // Atur nilai awal slider sama dengan HP awal
+            healthBarSlider.maxValue = HP;
+            healthBarSlider.value = HP;
         }
     }
 
     public void TakeDamage(int damage)
     {
         HP -= damage;
-        // Perbarui nilai slider setiap kali HP berubah
+
         if (healthBarSlider != null)
         {
             healthBarSlider.value = HP;
@@ -36,6 +34,21 @@ public class Character_Base : MonoBehaviour
 
     protected virtual void Die()
     {
-        Destroy(gameObject); // default: musnahkan object
+        // 🔥 Cek apakah ada ScoreManager di scene
+        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
+
+        // Jika ini Enemy → Tambahkan skor
+        if (this is Enemy && scoreManager != null)
+        {
+            scoreManager.AddScore(1);
+        }
+
+        // Jika ini Player → Reset skor
+        if (this is Player && scoreManager != null)
+        {
+            scoreManager.ResetScore();
+        }
+
+        Destroy(gameObject);
     }
 }
