@@ -6,8 +6,8 @@ public class Enemy_Spawner : MonoBehaviour
     [System.Serializable]
     public struct SubArea
     {
-        public Vector2 min;  // batas kiri bawah sub-area
-        public Vector2 max;  // batas kanan atas sub-area
+        public Vector2 min;
+        public Vector2 max;
     }
 
     [Header("Enemy Settings")]
@@ -20,10 +20,9 @@ public class Enemy_Spawner : MonoBehaviour
 
     [Header("Spawn Settings")]
     public float spawnInterval = 3f;
-    public float spawnMargin = 2f;
 
     [Header("Sub Areas (Optional)")]
-    public SubArea[] subAreas;   // 🔥 Daftar sub-area spawn
+    public SubArea[] subAreas;
 
     private float timer;
     private int currentEnemyCount;
@@ -67,12 +66,11 @@ public class Enemy_Spawner : MonoBehaviour
             Random.Range(chosenArea.min.y, chosenArea.max.y)
         );
 
-        // ✅ Pastikan tetap di luar kamera (opsional)
+        // ❌ Jika spawnPos masih di dalam kamera → BATALKAN spawn
         if (spawnPos.x > camMin.x && spawnPos.x < camMax.x && spawnPos.y > camMin.y && spawnPos.y < camMax.y)
         {
-            // Kalau kebetulan masuk kamera, geser sedikit keluar
-            if (spawnPos.x > (camMin.x + camMax.x) / 2) spawnPos.x = camMax.x + spawnMargin;
-            else spawnPos.x = camMin.x - spawnMargin;
+            Debug.Log("[Spawner] Spawn dibatalkan karena titik spawn berada di dalam kamera.");
+            return; // keluar dari fungsi, tunggu sampai posisi spawn keluar kamera
         }
 
         // ✅ Spawn musuh
@@ -107,7 +105,6 @@ public class Enemy_Spawner : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
 
-        // 🔲 Gambar semua sub-area
         if (subAreas != null)
         {
             foreach (var area in subAreas)
