@@ -8,8 +8,12 @@ public class Character_Base : MonoBehaviour
     public int ATK = 10;
     public Slider healthBarSlider;
 
+    private Character_Animation anim; 
+
     void Start()
     {
+        anim = GetComponent<Character_Animation>();
+
         if (healthBarSlider != null)
         {
             healthBarSlider.maxValue = HP;
@@ -34,16 +38,24 @@ public class Character_Base : MonoBehaviour
 
     protected virtual void Die()
     {
-        // 🔥 Cek apakah ada ScoreManager di scene
-        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
+        // ✅ Kalau ada animasi → mainkan dulu
+        if (anim != null)
+        {
+            anim.PlayDeath();
+        }
+        else
+        {
+            Destroy(gameObject); // fallback kalau tidak ada animator
+        }
 
-        // Jika ini Enemy → Tambahkan skor
+        // 🔥 Score manager kalau musuh
+        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
         if (this is Enemy && scoreManager != null)
         {
             scoreManager.AddScore(50);
         }
 
-        // Jika ini Player → Tampilkan UI Game Over
+        // 🔥 Game over kalau player
         if (this is Player)
         {
             GameOverManager gameOverManager = FindFirstObjectByType<GameOverManager>();
@@ -52,7 +64,5 @@ public class Character_Base : MonoBehaviour
                 gameOverManager.ShowGameOverUI();
             }
         }
-
-        Destroy(gameObject);
     }
 }
