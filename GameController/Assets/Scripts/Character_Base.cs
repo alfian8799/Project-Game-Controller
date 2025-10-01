@@ -10,7 +10,7 @@ public class Character_Base : MonoBehaviour
 
     private Character_Animation anim; 
 
-    void Start()
+    protected virtual void Start()
     {
         anim = GetComponent<Character_Animation>();
 
@@ -21,7 +21,7 @@ public class Character_Base : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
         HP -= damage;
 
@@ -38,14 +38,14 @@ public class Character_Base : MonoBehaviour
 
     protected virtual void Die()
     {
-        // ✅ Kalau ada animasi → mainkan dulu
+        
         if (anim != null)
         {
             anim.PlayDeath();
         }
         else
         {
-            Destroy(gameObject); // fallback kalau tidak ada animator
+            Destroy(gameObject);
         }
 
         // 🔥 Score manager kalau musuh

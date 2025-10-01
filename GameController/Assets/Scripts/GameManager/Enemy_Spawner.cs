@@ -28,6 +28,8 @@ public class Enemy_Spawner : MonoBehaviour
     private int currentEnemyCount;
     private Camera mainCam;
 
+    [HideInInspector] public bool canSpawn = true; // ✅ Dikontrol oleh BossSpawner
+
     void Start()
     {
         timer = spawnInterval;
@@ -36,6 +38,8 @@ public class Enemy_Spawner : MonoBehaviour
 
     void Update()
     {
+        if (!canSpawn) return; // ❌ Hentikan spawn jika boss sedang aktif
+
         timer -= Time.deltaTime;
 
         if (timer <= 0f && currentEnemyCount < maxEnemies)
@@ -53,31 +57,24 @@ public class Enemy_Spawner : MonoBehaviour
             return;
         }
 
-        // 🔁 Pilih sub-area acak
         SubArea chosenArea = subAreas[Random.Range(0, subAreas.Length)];
 
-        // Ambil batas kamera
         Vector3 camMin = mainCam.ViewportToWorldPoint(new Vector3(0, 0, 0));
         Vector3 camMax = mainCam.ViewportToWorldPoint(new Vector3(1, 1, 0));
 
-        // Posisi spawn acak dalam sub-area
         Vector2 spawnPos = new Vector2(
             Random.Range(chosenArea.min.x, chosenArea.max.x),
             Random.Range(chosenArea.min.y, chosenArea.max.y)
         );
 
-        // ❌ Jika spawnPos masih di dalam kamera → BATALKAN spawn
         if (spawnPos.x > camMin.x && spawnPos.x < camMax.x && spawnPos.y > camMin.y && spawnPos.y < camMax.y)
         {
-            Debug.Log("[Spawner] Spawn dibatalkan karena titik spawn berada di dalam kamera.");
-            return; // keluar dari fungsi, tunggu sampai posisi spawn keluar kamera
+            return;
         }
 
-        // ✅ Spawn musuh
         GameObject newEnemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
         currentEnemyCount++;
 
-        // ✅ Spawn HP bar otomatis
         if (hpBarPrefab != null && uiCanvas != null)
         {
             GameObject newHPBar = Instantiate(hpBarPrefab, uiCanvas.transform);
@@ -85,14 +82,11 @@ public class Enemy_Spawner : MonoBehaviour
             hpScript.enemy = newEnemy.transform;
         }
 
-        // Kurangi count saat enemy mati
         Character_Base enemyBase = newEnemy.GetComponent<Character_Base>();
         if (enemyBase != null)
         {
             StartCoroutine(RemoveEnemyOnDeath(enemyBase));
         }
-
-        Debug.Log($"[Spawner] Enemy spawned in sub-area at {spawnPos}");
     }
 
     private IEnumerator RemoveEnemyOnDeath(Character_Base enemy)
