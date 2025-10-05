@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	public CharacterController2D controller;
 	public Animator animator;
+	public PrefabWeapon playerWeapon; // Referensi ke skrip PrefabWeapon
 
 	public float runSpeed = 40f;
 
@@ -32,6 +33,15 @@ public class PlayerMovement : MonoBehaviour {
 		} else if (Input.GetButtonUp("Crouch"))
 		{
 			crouch = false;
+		}
+
+		// Panggil metode Shoot() dari PrefabWeapon saat tombol 'F' ditekan
+		if (Input.GetKeyDown(KeyCode.F))
+		{
+			if (playerWeapon != null)
+			{
+				playerWeapon.Shoot();
+			}
 		}
 
 	}
