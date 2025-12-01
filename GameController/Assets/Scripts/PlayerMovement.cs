@@ -12,6 +12,11 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement Settings")]
     public float runSpeed = 40f;
     public bool useCursorInput = false;
+    public bool useArduinoInput = false;    // ← mode baru
+
+    [Header("Arduino Settings")]
+    public ArduinoReader arduino;           // drag dari scene
+    public float arduinoSensitivity = 0.1f; // ubah sesuai kebutuhan
 
     [Header("Cursor Control Settings")]
     public float deadZone = 1.5f;
@@ -23,8 +28,12 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // 🔄 Pilih input horizontal
-        if (useCursorInput)
+        // 🎮 PILIH MODE INPUT
+        if (useArduinoInput && arduino != null)
+        {
+            horizontalMove = GetArduinoInput() * runSpeed;
+        }
+        else if (useCursorInput)
         {
             horizontalMove = GetCursorHorizontalInput() * runSpeed;
         }
@@ -33,38 +42,32 @@ public class PlayerMovement : MonoBehaviour
             horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
         }
 
-        // 📊 Animasi kecepatan
+        // Animasi kecepatan
         animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
 
-        // 🪶 Lompat (keyboard)
+        // Jump (keyboard)
         if (Input.GetButtonDown("Jump"))
         {
             jump = true;
             animator.SetBool("IsJumping", true);
         }
 
-        // 🪶 Lompat (klik kanan) jika cursor mode aktif
+        // Jump (cursor mode)
         if (useCursorInput && Input.GetMouseButtonDown(1))
         {
             jump = true;
             animator.SetBool("IsJumping", true);
         }
 
-        // 🪑 Crouch
+        // Crouch
         if (Input.GetButtonDown("Crouch"))
-        {
             crouch = true;
-        }
         else if (Input.GetButtonUp("Crouch"))
-        {
             crouch = false;
-        }
 
-        // 🔫 Tembak
+        // Shoot
         if (Input.GetKeyDown(KeyCode.F) && playerWeapon != null)
-        {
             playerWeapon.Shoot();
-        }
     }
 
     public void OnLanding()
@@ -83,19 +86,35 @@ public class PlayerMovement : MonoBehaviour
         jump = false;
     }
 
+    // ============================================
+    //                ARDUINO INPUT
+    // ============================================
+    private float GetArduinoInput()
+    {
+        float x = arduino.acceleration.x;
+
+        // Threshold kecil biar ga goyang terus
+        if (Mathf.Abs(x) < 0.1f)
+            return 0f;
+
+        // Sensitivitas
+        return x * arduinoSensitivity;
+    }
+
+    // ============================================
+    //             CURSOR INPUT (asli)
+    // ============================================
     private float GetCursorHorizontalInput()
     {
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         float diff = mouseWorldPos.x - transform.position.x;
 
-        // 📍 Dalam dead zone ➝ tidak jalan, hanya menghadap
         if (Mathf.Abs(diff) < deadZone)
         {
             FaceCursor(diff);
             return 0f;
         }
 
-        // 📍 Di luar dead zone ➝ jalan ke arah kursor
         FaceCursor(diff);
         return Mathf.Sign(diff);
     }
